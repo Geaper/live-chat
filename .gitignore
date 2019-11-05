@@ -1,0 +1,103 @@
+#################
+## Eclipse
+#################
+
+*.pydevproject
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+
+#############
+## Windows detritus
+#############
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac crap
+.DS_Store
+
+
+#############
+## Intellij
+#############
+
+nbproject
+manifest.mf
+build.xml
+
+.vscode
+.project
+.settings
+.idea/*
+*.iml
+
+#############
+## Project
+#############
+index.html
+**/target/*
+**/overlays/*
+rebel.xml
+dist/*
+carnot.log
+carnot.log.*
+carnot-diagrams/
+carnot-jackrabbit/
+ipp-portal/WEB-INF/
+ipp-portal/index.jsp
+ipp-portal/ipp/
+ipp-resources/
+src/main/webapp/WEB-INF/faces-config.xml
+
+node_modules/*
+npm-debug.log
+docs
+vendor
+components
+
+test/test-results.xml
+test-results.xml
+
+# Custom
+
+/build
+stardust.log
+stardust.log.*
+src/main/webapp/WEB-INF/lib/bos-ui.jar
+
+# ignore all . files 
+.*
+!.gitignore
+/target/
+debug.log
+deploy/
