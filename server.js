@@ -31,6 +31,10 @@ io.on('connection', socket => {
         users.push(user);
     });
 
+    setInterval(function() {
+        socket.broadcast.emit('getUsers', users);
+    }, 500);
+
     socket.emit('getUsers', users);
 });
 

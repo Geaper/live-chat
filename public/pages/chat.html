@@ -13,7 +13,7 @@
     <div id="navigation"></div>
         <div class="container-fluid">
             <div class="row" style="margin-top: 40px;">
-                <div class="col-md-8 offset-md-2">
+                <div class="col-md-9" id="chatDiv">
                     <form id="chat">
                         <span id="connectedMsg"></span>
                         <div class="messages"></div>
@@ -21,7 +21,7 @@
                         <button class="btn btn-primary chat-button">Send</button>
                     </form>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <div class="usersList"></div>
                 </div>
             </div>       
@@ -34,6 +34,16 @@
 
         $(function(){
             $("#navigation").load("navigation.html"); 
+            $("#footer").load("footer.html"); 
+        });
+
+        $(document).ready ( function () {
+            $(document).on("click", ".userbox", function () {
+                let user = $(this).attr('id');
+                botMessage(user);
+                $('.usersList').hide();
+                $('#chatDiv').removeClass('col-md-9').addClass('col-md-12');
+            });
         });
 
         let socket = io('http://localhost:3000');
@@ -56,6 +66,9 @@
                     renderMessage(messageObj);
 
                     socket.emit('sendMessage', messageObj);
+
+                    // Clear msg
+                    $('input[name=message').val('');
                 }
             });
 
@@ -69,17 +82,25 @@
                 }
             });
 
+            let loggedUsers = [];
             socket.on('getUsers', function(users) {
-                console.log(users);
                 for(user of users) {
-                    $('.usersList').append(`<div class="text-center userbox"><strong>${user}</strong></div><hr/>`);
+                    if(user !== sessionStorage.user && loggedUsers.indexOf(user) == -1) {
+                        $('.usersList').append(`<div class="text-center userbox" id="${user}"><strong>${user}</strong><img src="../img/logo.png" alt="logo" style="width:20px; margin-left: 15px;"></div><hr/>`);
+                        loggedUsers.push(user);
+                    }
                 }
             });
 
             renderMessage = (data) => {
                 $('.messages').append(`<div class="message"><strong>${data.user}</strong>: ${data.message}</div>`);
             };
+
+            botMessage = (user) => {
+                $('.messages').append(`<div style="color: #ccc">You are now chatting with ${user}`);
+            }
         });     
     </script>
 </body>
+<div id="footer"></div>
 </html>

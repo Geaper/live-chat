@@ -6,10 +6,21 @@
     <!-- Links -->
     <ul class="navbar-nav">
         <li class="nav-item">
-        <a class="nav-link" href="/pages/dashboard.html">Dashboard</a>
+        <a class="nav-link" id="dashboardLink" href="/pages/dashboard.html">Dashboard</a>
         </li>
         <li class="nav-item">
-        <a class="nav-link" href="/pages/chat.html">Live Chat</a>
+        <a class="nav-link" id="chatLink" href="/pages/chat.html">Live Chat</a>
         </li>
     </ul>
 </nav>
+
+<script>
+    switch(window.location.pathname) {
+        case '/pages/dashboard.html':
+            $('#dashboardLink').addClass('active');
+        break;
+        case '/pages/chat.html':
+            $('#chatLink').addClass('active');
+        break;
+    }
+</script>
