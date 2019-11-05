@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>AS Chat</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container vertical-center">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="text-center" style="width: 85%; margin-bottom: 20px;">
+                    <a href="#">
+                        <img src="img/logo.png" alt="logo" style="width:150px;">
+                    </a>
+                </div>
+                <form id="login">
+                    <input class="text-center login-input" type="text" name="username" placeholder="Username" />
+                    <button type="submit" id="joinBtn" class="btn btn-primary login-button">Join</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+<script type="text/javascript">
+    $('#login').submit(function(evt) {
+        evt.preventDefault();
+
+        let socket = io('http://localhost:3000');        
+        let user = $('input[name=username]').val();
+
+        socket.on('connect', () => {
+            if(user.length && socket) {
+                sessionStorage.setItem('user', user);
+                socket.emit('sendUser', user);
+
+                window.location.href = '/pages/chat.html';
+            }
+        });
+    });
+</script>
+</html>
