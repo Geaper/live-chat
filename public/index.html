@@ -8,9 +8,45 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.min.css">
 </head>
 <body>
-    <div class="container vertical-center">
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark" style="display: none;">
+        <!-- Brand/logo -->
+        <a class="navbar-brand" href="/">
+            <img src="../img/logo.png" alt="logo" style="width:40px;">
+        </a>
+        <!-- Links -->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" id="dashboardLink" href="#">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" id="chatLink" href="#">Live Chat</a>
+            </li>
+        </ul>
+    </nav>
+    <div id="chatWrapper">
+        <div class="container-fluid">
+            <div class="row" style="margin-top: 40px;">
+                <div class="col-md-9" id="chatDiv">
+                    <form id="chatForm">
+                       <div class="text-center">
+                            <u id="connectedMsg"></u>
+                       </div>
+                        <div class="messages"></div>
+                        <input class="chat-input" type="text" name="message" placeholder="Message" />
+                        <button type="submit" class="btn btn-primary chat-button">Send</button>
+                    </form>
+                </div>
+                <div class="col-md-3">
+                    <div id="userList"></div>
+                </div>
+            </div>       
+        </div>
+    </div>
+    <div class="container vertical-center" id="loginWrapper">
         <div class="row">
             <div class="col-md-8 offset-md-2">
                 <div class="text-center" style="width: 600px; margin-bottom: 20px;">
@@ -19,32 +55,262 @@
                     </a>
                     <h2 style="margin-top: 10px; color: #103c6b;">AS Chat</h2>
                 </div>
-                <form id="login">
+                <form id="loginForm">
                     <input class="text-center login-input" type="text" name="username" placeholder="Username" />
                     <button type="submit" id="joinBtn" class="btn btn-primary login-button">Join</button>
+                    <div class="text-center" style="width: 600px;">
+                        <span id="loginError" style="color: red; display: block;"></span>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
+    <div class="container-fluid" id="dashboardWrapper" style="display: none;">
+        <div class="row" style="margin-top: 40px;">
+            <div class="col-md-6">
+                <div class="card card-statistics">
+                    <div class="card-body">
+                        <div class="clearfix">
+                        <div class="float-left">
+                            <i class="mdi mdi-account text-danger icon-lg"></i>
+                        </div>
+                        <div class="float-right">
+                            <p class="mb-0 text-right">Total Users</p>
+                            <div class="fluid-container">
+                            <h2 class="font-weight-medium text-right mb-0" id="totalUsers"></h2>
+                            </div>
+                        </div>
+                        </div>
+                        <p class="text-muted mt-3 mb-0">
+                        <i class="mdi mdi-alert-octagon mr-1" aria-hidden="true"></i> Live Chat user counter </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-statistics">
+                    <div class="card-body">
+                        <div class="clearfix">
+                        <div class="float-left">
+                            <i class="mdi mdi-message text-primary icon-lg"></i>
+                        </div>
+                        <div class="float-right">
+                            <p class="mb-0 text-right">Total Messages</p>
+                            <div class="fluid-container">
+                            <h2 class="font-weight-medium text-right mb-0" id="totalMessages"></h2>
+                            </div>
+                        </div>
+                        </div>
+                        <p class="text-muted mt-3 mb-0">
+                        <i class="mdi mdi-alert-octagon mr-1" aria-hidden="true"></i> Live Chat message counter </p>
+                    </div>
+                </div>
+            </div>
+        </div>     
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>  
+    </div>
+    <footer class="footer" style="display: none;">
+        <div class="text-right" style="margin-right: 15px;">
+            <span>Made by: <strong>Tiago Silva nº 6130</strong></span>
+        </div>
+    </footer>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
 
 <script type="text/javascript">
-    $('#login').submit(function(evt) {
-        evt.preventDefault();
 
+    $(function(){
         let socket = io('http://localhost:3000');        
-        let user = $('input[name=username]').val();
+        let user = $('input[name=username]');
+        let message = $('input[name=message]');
+        let messages = $('.messages');
+        let chatForm = $('#chatForm');
+        let loginForm = $('#loginForm');
+        let chatWrapper = $('#chatWrapper');
+        let loginWrapper = $('#loginWrapper');
+        let loginError = $('#loginError');
+        let userList = $('#userList');
+        let dashboardWrapper = $('#dashboardWrapper');
+        let footer = $('footer');
+        let nav = $('nav');
 
-        socket.on('connect', () => {
-            if(user.length && socket) {
-                sessionStorage.setItem('user', user);
-                socket.emit('sendUser', user);
+        chatForm.submit(function(evt) {
+            evt.preventDefault();
+            socket.emit('sendMessage', message.val(), function(data) {
+                messages.append(`<div class="error"><strong>${data}</strong></div>`);
+            });
+            message.val('');
+        });
 
-                window.location.href = '/pages/chat.html';
+        getTime = () => {
+            var today = new Date();
+            var hour = today.getHours() + "";
+            var minutes = today.getMinutes() + "";
+            var seconds = today.getSeconds() + "";
+            
+            hour = checkZero(hour);
+            minutes = checkZero(minutes);
+            seconds = checkZero(seconds);
+            
+            let time = hour + ":" + minutes + ":" + seconds;
+            return time;
+            
+            function checkZero(data){
+            if(data.length == 1){
+                data = "0" + data;
+            }
+            return data;
+            }
+        }
+
+        welcomeMessage = function() {
+            messages.append(`<div class="text-muted"><i><strong>Welcome to AS Live Chat. Enjoy your stay ;)<br>If you want to private message please use <u>/w < NameOfTheUser > < YourMessage ></u><br> For example: <u>/w John Hello</u></i><br>--------------------------</div>`);
+        };
+        welcomeMessage();
+
+        loginForm.submit(function(evt) {
+            evt.preventDefault();
+            if(user.val() == null || user.val() == '') loginError.html(`Invalid username`);
+            else {
+                socket.emit('newUser', user.val(), function(data, user) {
+                    if(data) {
+                        dashboardWrapper.hide();
+                        loginWrapper.hide();
+                        nav.show();
+                        footer.show();
+                        $('#connectedMsg').html(`You are connected as <strong>${user}</strong>`);
+                        chatWrapper.show();
+
+                        socket.emit('previousMessages', function(data) {
+                            for(let i = 0; i < data.length; i++) {
+                                messages.append(`<div class="message"><strong>${data[i].user} - ${getTime()}</strong>: ${data[i].message}</div>`);
+                            }
+                        });
+                    }
+                    else {
+                        loginError.html(`This username is already taken`);
+                    }
+                });
+                user.val('');
             }
         });
+
+        socket.on('newMessage', (data) => {
+            if(data.message != "") {
+                messages.append(`<div class="message"><strong>${data.user} - ${getTime()}</strong>: ${data.message}</div>`);
+            }
+        });
+
+        socket.on('users', (data) => {
+            let totalUsers = data.length;
+            $('#totalUsers').html(totalUsers);
+
+            userList.html('');
+            userList.append(`<h5 class="text-center" style="margin-top: 5px;"><u>Connected Users</u></h5><hr>`);
+            for(let i = 0; i < data.length; i++) {
+                let user = data[i];
+                userList.append(`<div class="text-center userbox" id="${user}">${user}</div><hr/>`);
+            }
+        });
+
+        socket.on('privateMessage', (data) => {
+            messages.append(`<div class="text-muted"><strong>You are now chatting with ${data.user}</div>`);
+            messages.append(`<div class="message" style="color: #FF7F00;"><strong>${data.user} - ${getTime()}</strong>: ${data.message}</div>`);
+        });
+
+
+        // =========== NAVIGATION ========
+        $('#chatLink').click(function() {
+            dashboardWrapper.hide();
+            chatWrapper.show();
+            $('#dashboardLink').removeClass('active');
+            $('#chatLink').addClass('active');
+        });
+
+       $('#dashboardLink').click(function() {
+            dashboardWrapper.show();
+            chatWrapper.hide();
+            $('#dashboardLink').addClass('active');
+            $('#chatLink').removeClass('active');
+
+            socket.emit('previousMessages', function(data) {
+                let totalMessages = data.length;
+                $('#totalMessages').html(totalMessages);
+            });
+        });
+
+        // Dashboard
+
+        let chartColors = {
+            red: 'rgb(255, 99, 132)',
+            blue: 'rgb(54, 162, 235)'
+        };
+
+        let config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Users',
+                    backgroundColor: chartColors.red,
+                    borderColor: chartColors.red,
+                    data: [
+                        0,
+                        0
+                    ],
+                    fill: false,
+                }, {
+                    label: 'Messages',
+                    fill: false,
+                    backgroundColor: chartColors.blue,
+                    borderColor: chartColors.blue,
+                    data: [
+                        0,
+                        0
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Comparison between logged users and messages per minute'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time in Minutes'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Amount'
+                        }
+                    }]
+                }
+            }
+        };
+
+        var ctx = document.getElementById('canvas').getContext('2d');
+        window.myLine = new Chart(ctx, config);
     });
 </script>
 </html>

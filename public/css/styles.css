@@ -4,12 +4,17 @@ html, body{
 }
 
 .footer {
-  position: absolute;
+  position: fixed;
+  left: 0;
   bottom: 0;
   width: 100%;
-  height: 60px;
-  line-height: 60px;
-  background-color: #f5f5f5;
+  background-color: #343a40!important;
+  color: white;
+  text-align: center;
+}
+
+#chatWrapper {
+  display: none;
 }
   
   #chat {
@@ -37,24 +42,19 @@ html, body{
   .chat-input {
     width: 100%;
     border: 1px solid #ddd;
-    height: 120px;
+    height: 80px;
     padding: 0 20px;
     font-size: 14px;
     text-align: center;
   }
 
-  .usersList {
-    height: 75%;
+  #userList {
+    height: 100%;
     background: #f1f1f1;
     border: 1px solid #ccc;
     overflow-y: scroll;
   }
 
-  .userbox {
-    padding-top: 20px; 
-    cursor: pointer;
-  }
-  
   .chat-button {
     width: 100%;
     height: 50px;
@@ -93,4 +93,8 @@ html, body{
 
   .icon-lg {
     font-size: 2.5rem;
+  }
+
+  .error {
+    color: red;
   }
