@@ -34,6 +34,11 @@ io.sockets.on('connection', (socket) => {
         }
     });
 
+    socket.on('stats', (callback) => {
+        let stats =  messages.map(a=> a.user).filter((a,b,c)=> c.indexOf(a) == b).reduce((a,b)=>(a[b]=messages.filter(i=>i.user == b).length ,a),{});
+        callback(stats);
+    });
+
     socket.on('previousMessages', (callback) => {
         callback(messages);
     });
