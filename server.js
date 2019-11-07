@@ -57,6 +57,7 @@ io.sockets.on('connection', (socket) => {
                 msg = msg.substr(idx + 1);
                 if(receiver in users) {
                     users[receiver].emit('privateMessage', {message: msg, user: socket.user});
+                    users[socket.user].emit('privateMessageSender', {message: msg, user: socket.user});
                 }
                 else {
                     callback(`Please, enter a valid user to start a private message!`);

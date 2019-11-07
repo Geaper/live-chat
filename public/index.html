@@ -150,6 +150,10 @@
             message.val('');
         });
 
+        socket.on('privateMessageSender', (data) => {
+            messages.append(`<div class="message" style="color: #FF7F00;"><strong>${data.user} - ${getTime()}</strong>: ${data.message}</div>`);
+        });
+
         getTime = () => {
             var today = new Date();
             var hour = today.getHours() + "";
