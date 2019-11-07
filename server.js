@@ -14,7 +14,9 @@ app.use('/', (req, res) => {
     res.render('index.html');
 });
 
-server.listen(3000);
+let port = 3000;
+server.listen(port);
+console.log(`Running on port -> ` + port);
 
 let users = {};
 let messages = [];
